@@ -1,0 +1,16 @@
+# Python
+server/venv/
+*.pyc
+__pycache__/
+
+# Node
+client/node_modules/
+dist/
+build/
+
+# VS Code
+.vscode/
+
+# Environment files
+*.env
+.env.local

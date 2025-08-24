@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* === AetherOS Custom Sci-Fi Animation === */
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+/* === AetherOS Custom Component Styles === */
+@layer components {
+  .card-container {
+    @apply bg-neutral-950/50 border border-cyan-500/20 rounded-lg p-6;
+  }
+
+  .input-field {
+    @apply w-full p-3 bg-neutral-900 border border-neutral-700 rounded-lg text-neutral-200 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all duration-300;
+  }
+
+  .btn {
+    @apply px-6 py-2 font-semibold rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black;
+  }
+
+  .btn-primary {
+    @apply btn bg-cyan-500 text-black hover:bg-cyan-400 shadow-md shadow-cyan-500/20;
+  }
+
+  .btn-ghost {
+    @apply btn text-neutral-400 hover:bg-neutral-800 hover:text-white;
+  }
+}
+/* === FullCalendar Sci-Fi Theme Overrides === */
+:root {
+  --fc-border-color: rgba(63, 63, 70, 0.7);
+  --fc-daygrid-event-dot-width: 8px;
+  --fc-list-event-dot-width: 10px;
+  --fc-list-event-hover-bg-color: #1f2937;
+}
+.fc .fc-toolbar-title {
+  color: #ffffff;
+  font-size: 1.5rem;
+}
+.fc .fc-button-primary {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+.fc .fc-button-primary:hover {
+  background-color: #4b5563;
+}
+.fc .fc-daygrid-day-number, .fc .fc-col-header-cell-cushion {
+  color: #d1d5db;
+}
+.fc .fc-day-today {
+  background-color: rgba(6, 182, 212, 0.1) !important;
+}
+/* === Custom AetherOS Scrollbar === */
+/* For Webkit browsers like Chrome, Safari, Edge */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(63, 63, 70, 0.7); /* neutral-700 with opacity */
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 255, 255, 0.7); /* cyan-400 with opacity */
+}
+.embla {
+  overflow: hidden;
+}
+.embla__container {
+  display: flex;
+}
+.embla__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
