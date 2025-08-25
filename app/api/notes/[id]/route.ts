@@ -6,9 +6,9 @@ import { NextResponse, NextRequest } from "next/server";
 // ---------------------
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const id = params.id;
+  const id = context.params.id;
 
   const { data, error } = await supabase.from("quick_notes").select("*").eq("id", id).single();
 
@@ -25,9 +25,9 @@ export async function GET(
 // ---------------------
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const id = params.id;
+  const id = context.params.id;
   const body = await request.json();
 
   const { error } = await supabase.from("quick_notes").update(body).eq("id", id);
@@ -45,9 +45,9 @@ export async function PUT(
 // ---------------------
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const id = params.id;
+  const id = context.params.id;
 
   const { error } = await supabase.from("quick_notes").delete().eq("id", id);
 
