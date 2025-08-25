@@ -1,12 +1,15 @@
+// app/api/notes/[id]/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
-import { NextResponse } from "next/server";
 
-// To DELETE a note
+// ---------------------
+// DELETE a note by ID
+// ---------------------
 export async function DELETE(
-  request: Request,
-  context: { params: { id: string } } // This is the corrected part
+  request: NextRequest,
+  { params }: { params: { id: string } }
 ) {
-  const id = context.params.id; // We now get the id from the context object
+  const id = params.id;
 
   const { error } = await supabase.from("quick_notes").delete().eq("id", id);
 
@@ -16,4 +19,43 @@ export async function DELETE(
   }
 
   return NextResponse.json({ message: "Note deleted successfully" });
+}
+
+// ---------------------
+// GET a single note by ID
+// ---------------------
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = params.id;
+
+  const { data, error } = await supabase.from("quick_notes").select("*").eq("id", id).single();
+
+  if (error) {
+    console.error("Error fetching note:", error);
+    return NextResponse.json({ error: "Failed to fetch note" }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
+}
+
+// ---------------------
+// UPDATE a note by ID
+// ---------------------
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = params.id;
+  const body = await request.json();
+
+  const { error } = await supabase.from("quick_notes").update(body).eq("id", id);
+
+  if (error) {
+    console.error("Error updating note:", error);
+    return NextResponse.json({ error: "Failed to update note" }, { status: 500 });
+  }
+
+  return NextResponse.json({ message: "Note updated successfully" });
 }
