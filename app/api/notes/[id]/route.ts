@@ -1,25 +1,5 @@
-// app/api/notes/[id]/route.ts
-import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabaseClient";
-
-// ---------------------
-// DELETE a note by ID
-// ---------------------
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const id = params.id;
-
-  const { error } = await supabase.from("quick_notes").delete().eq("id", id);
-
-  if (error) {
-    console.error("Error deleting note:", error);
-    return NextResponse.json({ error: "Failed to delete note" }, { status: 500 });
-  }
-
-  return NextResponse.json({ message: "Note deleted successfully" });
-}
+import { NextResponse, NextRequest } from "next/server";
 
 // ---------------------
 // GET a single note by ID
@@ -58,4 +38,23 @@ export async function PUT(
   }
 
   return NextResponse.json({ message: "Note updated successfully" });
+}
+
+// ---------------------
+// DELETE a note by ID
+// ---------------------
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const id = params.id;
+
+  const { error } = await supabase.from("quick_notes").delete().eq("id", id);
+
+  if (error) {
+    console.error("Error deleting note:", error);
+    return NextResponse.json({ error: "Failed to delete note" }, { status: 500 });
+  }
+
+  return NextResponse.json({ message: "Note deleted successfully" });
 }
