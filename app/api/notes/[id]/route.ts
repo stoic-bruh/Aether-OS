@@ -1,13 +1,12 @@
-// in app/api/notes/[id]/route.ts
 import { supabase } from "@/lib/supabaseClient";
 import { NextResponse } from "next/server";
 
 // To DELETE a note
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } } // This is the corrected part
 ) {
-  const { id } = params;
+  const id = context.params.id; // We now get the id from the context object
 
   const { error } = await supabase.from("quick_notes").delete().eq("id", id);
 
