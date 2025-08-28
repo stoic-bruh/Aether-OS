@@ -1,14 +1,18 @@
 import { supabase } from "@/lib/supabaseClient";
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
 // GET a single note by ID
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  context: { params: { id: string } }
 ) {
-  const { id } = params;
+  const { id } = context.params;
 
-  const { data, error } = await supabase.from("quick_notes").select("*").eq("id", id).single();
+  const { data, error } = await supabase
+    .from("quick_notes")
+    .select("*")
+    .eq("id", id)
+    .single();
 
   if (error) {
     console.error("Error fetching note:", error);
@@ -20,13 +24,16 @@ export async function GET(
 
 // UPDATE a note by ID
 export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  context: { params: { id: string } }
 ) {
-  const { id } = params;
+  const { id } = context.params;
   const body = await request.json();
 
-  const { error } = await supabase.from("quick_notes").update(body).eq("id", id);
+  const { error } = await supabase
+    .from("quick_notes")
+    .update(body)
+    .eq("id", id);
 
   if (error) {
     console.error("Error updating note:", error);
@@ -38,12 +45,15 @@ export async function PUT(
 
 // DELETE a note by ID
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  context: { params: { id: string } }
 ) {
-  const { id } = params;
+  const { id } = context.params;
 
-  const { error } = await supabase.from("quick_notes").delete().eq("id", id);
+  const { error } = await supabase
+    .from("quick_notes")
+    .delete()
+    .eq("id", id);
 
   if (error) {
     console.error("Error deleting note:", error);
