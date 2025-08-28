@@ -1,12 +1,12 @@
-// in app/api/tasks/[id]/route.ts
 import { supabase } from "@/lib/supabaseClient";
 import { NextResponse } from "next/server";
 
+// PATCH to update task completion status and award XP
 export async function PATCH(
   request: Request,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const id = context.params.id;
+  const { id } = await context.params;
   const { completed } = await request.json();
 
   // Award XP if the task is being marked as complete (i.e., completed is true)
@@ -29,12 +29,55 @@ export async function PATCH(
 
   return NextResponse.json(data[0]);
 }
-// To DELETE a task
+
+// GET a single task by ID
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
+
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("Error fetching task:", error);
+    return NextResponse.json({ error: "Failed to fetch task" }, { status: 500 });
+  }
+
+  return NextResponse.json(data);
+}
+
+// PUT to update a task by ID
+export async function PUT(
+  request: Request,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params;
+  const body = await request.json();
+
+  const { error } = await supabase
+    .from("tasks")
+    .update(body)
+    .eq("id", id);
+
+  if (error) {
+    console.error("Error updating task:", error);
+    return NextResponse.json({ error: "Failed to update task" }, { status: 500 });
+  }
+
+  return NextResponse.json({ message: "Task updated successfully" });
+}
+
+// DELETE a task by ID
 export async function DELETE(
   request: Request,
-  context: { params: { id: string } } // Changed this line
+  context: { params: Promise<{ id: string }> }
 ) {
-  const id = context.params.id; // And added this line
+  const { id } = await context.params;
 
   const { error } = await supabase.from("tasks").delete().eq("id", id);
 

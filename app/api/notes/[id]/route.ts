@@ -1,12 +1,12 @@
 import { supabase } from "@/lib/supabaseClient";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 
 // GET a single note by ID
 export async function GET(
-  request: Request,
-  context: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params;
+  const { id } = await params;
 
   const { data, error } = await supabase
     .from("quick_notes")
@@ -24,10 +24,10 @@ export async function GET(
 
 // UPDATE a note by ID
 export async function PUT(
-  request: Request,
-  context: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params;
+  const { id } = await params;
   const body = await request.json();
 
   const { error } = await supabase
@@ -45,10 +45,10 @@ export async function PUT(
 
 // DELETE a note by ID
 export async function DELETE(
-  request: Request,
-  context: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params;
+  const { id } = await params;
 
   const { error } = await supabase
     .from("quick_notes")
