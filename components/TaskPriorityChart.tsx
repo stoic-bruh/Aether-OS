@@ -2,9 +2,8 @@
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts';
 import { ListChecks } from 'lucide-react';
 
-type Task = {
-  priority: number;
-};
+// AFTER: The new import statement
+import { Task } from '@/lib/types';
 
 export default function TaskPriorityChart({ tasks }: { tasks: Task[] }) {
   // Aggregate data: count tasks per priority

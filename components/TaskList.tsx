@@ -5,14 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+// AFTER: The new import statement
+import { Task } from '@/lib/types';
 
-type Task = {
-  id: string;
-  title: string;
-  subject: string | null;
-  priority: number;
-  completed: boolean;
-};
 
 const priorityStyles = {
   1: "border-red-500/80",

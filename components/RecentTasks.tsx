@@ -1,12 +1,8 @@
 import { ListTodo } from 'lucide-react';
 
 // Re-use the Task type definition
-type Task = {
-  id: string;
-  title: string;
-  subject: string | null;
-  priority: number;
-};
+// AFTER: The new import statement
+import { Task } from '@/lib/types';
 
 export default function RecentTasks({ tasks }: { tasks: Task[] }) {
   return (

@@ -6,16 +6,7 @@ import PrioritiesCard from '@/components/PrioritiesCard';
 import DashboardStats from '@/components/DashboardStats';
 import ActivityFeed, { ActivityItem } from '@/components/ActivityFeed';
 import AnalyticsCarousel from '@/components/AnalyticsCarousel';
-
-type Task = {
-  id: string;
-  title: string;
-  subject: string | null;
-  priority: number;
-  completed: boolean;
-  score?: number;
-  created_at: string;
-};
+import { Task } from '@/lib/types';
 
 type StudyLog = {
   subject: string | null;

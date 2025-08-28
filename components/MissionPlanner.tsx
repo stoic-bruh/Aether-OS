@@ -2,13 +2,8 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-
-type Task = {
-  id: string;
-  title: string;
-  priority: number;
-  due_date: string;
-};
+// AFTER: The new import statement
+import { Task } from '@/lib/types';
 
 const getWeekDays = (start: Date) => {
   const days = [];

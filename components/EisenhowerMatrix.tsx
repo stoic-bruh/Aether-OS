@@ -1,11 +1,7 @@
 'use client';
 
-type Task = {
-  id: string;
-  title: string;
-  priority: number;
-  due_date: string | null;
-};
+// AFTER: The new import statement
+import { Task } from '@/lib/types';
 
 const Quadrant = ({ title, tasks, color }: { title: string, tasks: Task[], color: string }) => {
   return (

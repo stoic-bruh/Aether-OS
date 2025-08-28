@@ -3,13 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { Target } from 'lucide-react';
 
-type Task = {
-  id: string;
-  title: string;
-  subject: string | null;
-  priority: number;
-  completed: boolean;
-};
+// AFTER: The new import statement
+import { Task } from '@/lib/types';
 
 const priorityStyles: { [key: number]: string } = {
   1: "border-red-500/50 text-red-400",
