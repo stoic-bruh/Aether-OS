@@ -2,8 +2,13 @@
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-// AFTER: The new import statement
-import { Task } from '@/lib/types';
+
+type Task = {
+  id: string;
+  title: string;
+  priority: number;
+  due_date: string;
+};
 
 const getWeekDays = (start: Date) => {
   const days = [];
@@ -45,11 +50,13 @@ export default function MissionPlanner({ tasks }: { tasks: Task[] }) {
         <h2 className="text-xl font-semibold text-white">Weekly Mission Planner</h2>
         <div className="flex items-center gap-2">
           <button onClick={() => setWeekStart(d => new Date(d.setDate(d.getDate() - 7)))} className="btn-ghost p-2"><ChevronLeft /></button>
-          <span className="font-semibold">{weekStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
+          <span className="font-semibold text-sm md:text-base">{weekStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</span>
           <button onClick={() => setWeekStart(d => new Date(d.setDate(d.getDate() + 7)))} className="btn-ghost p-2"><ChevronRight /></button>
         </div>
       </div>
-      <div className="grid grid-cols-7 gap-2">
+      
+      {/* Desktop Grid View */}
+      <div className="hidden md:grid grid-cols-7 gap-2">
         {weekDays.map(day => (
           <div key={day.toISOString()} className="bg-neutral-900/50 rounded-lg p-2 min-h-[200px] flex flex-col">
             <p className="text-center font-bold text-sm text-neutral-300">{day.toLocaleDateString('en-US', { weekday: 'short' })}</p>
@@ -60,6 +67,27 @@ export default function MissionPlanner({ tasks }: { tasks: Task[] }) {
               ))}
             </div>
             <button onClick={() => addTask(day)} className="mt-2 text-neutral-500 hover:text-cyan-400 self-center"><PlusCircle size={16}/></button>
+          </div>
+        ))}
+      </div>
+
+      {/* Mobile List View */}
+      <div className="md:hidden space-y-4">
+        {weekDays.map(day => (
+          <div key={day.toISOString()} className="bg-neutral-900/50 rounded-lg p-3">
+            <div className="flex justify-between items-center mb-2">
+              <p className="font-bold text-neutral-300">{day.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric' })}</p>
+              <button onClick={() => addTask(day)} className="text-neutral-500 hover:text-cyan-400"><PlusCircle size={18}/></button>
+            </div>
+            <div className="space-y-2 pl-2 border-l-2 border-neutral-700">
+              {(tasksByDate[day.toISOString().split('T')[0]] || []).length > 0 ? (
+                (tasksByDate[day.toISOString().split('T')[0]] || []).map(event => (
+                  <div key={event.id} className="p-2 rounded text-sm bg-blue-900/70">{event.title}</div>
+                ))
+              ) : (
+                <p className="text-xs text-neutral-600 italic pl-2">No objectives.</p>
+              )}
+            </div>
           </div>
         ))}
       </div>

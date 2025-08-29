@@ -1,29 +1,22 @@
 'use client';
 import { useTimer } from '@/app/context/TimerContext';
-import { Timer } from 'lucide-react';
+import { Timer, Coffee } from 'lucide-react';
 
 export default function GlobalTimerWidget() {
-  const { timeRemaining, isActive, mode } = useTimer();
+  const { mode, timeRemaining, isActive } = useTimer();
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  };
+  const minutes = Math.floor(timeRemaining / 60);
+  const seconds = timeRemaining % 60;
 
-  // Don't show the widget if the timer has never been started
-  if (!isActive && timeRemaining === 25 * 60) {
-    return null;
-  }
+  if (!isActive) return null; // Don't show the widget if the timer isn't running
 
   return (
     <div className="p-4 border-t border-neutral-800/50">
-      <div className="flex items-center justify-center gap-2">
-        <Timer className={`h-5 w-5 ${isActive ? 'text-cyan-400 animate-pulse' : 'text-neutral-500'}`} />
-        <span className="font-mono text-lg text-white">{formatTime(timeRemaining)}</span>
-        <span className={`text-xs uppercase px-2 py-1 rounded ${mode === 'work' ? 'bg-red-500/50' : 'bg-green-500/50'}`}>
-          {mode}
-        </span>
+      <div className="flex items-center justify-center gap-2 text-cyan-400">
+        {mode === 'work' ? <Timer size={18} /> : <Coffee size={18} />}
+        <p className="font-mono text-lg">
+          {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+        </p>
       </div>
     </div>
   );

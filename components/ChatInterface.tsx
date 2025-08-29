@@ -1,7 +1,6 @@
-// in app/components/ChatInterface.tsx
 'use client';
 import { useState, useRef, useEffect, FormEvent } from 'react';
-import { Bot, User } from 'lucide-react';
+import { Bot, User, Send } from 'lucide-react';
 
 type Message = {
   id: string;
@@ -23,7 +22,7 @@ export default function ChatInterface() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = { id: crypto.randomUUID(), role: 'user', content: input };
     const newMessages = [...messages, userMessage];
@@ -37,22 +36,23 @@ export default function ChatInterface() {
       body: JSON.stringify({ messages: newMessages }),
     });
 
-    if (!response.body) return;
-
+    if (!response.body) {
+      setIsLoading(false);
+      return;
+    }
+    
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let aiMessageContent = '';
     const aiMessageId = crypto.randomUUID();
 
-    // Add a placeholder for the AI's message
-    setMessages(prev => [...prev, { id: aiMessageId, role: 'assistant', content: '...' }]);
+    setMessages(prev => [...prev, { id: aiMessageId, role: 'assistant', content: '' }]);
 
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
       aiMessageContent += decoder.decode(value, { stream: true });
-
-      // Update the AI's message content in real-time
+      
       setMessages(prev => prev.map(msg => 
         msg.id === aiMessageId ? { ...msg, content: aiMessageContent } : msg
       ));
@@ -61,8 +61,12 @@ export default function ChatInterface() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)]">
-      <div ref={chatContainerRef} className="flex-1 overflow-y-auto space-y-6 p-4 scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900">
+    // This container ensures the component fills the available height
+    <div className="flex flex-col h-[calc(100vh_-_10rem)] md:h-[calc(100vh_-_8rem)] bg-neutral-950/50 rounded-lg border border-cyan-500/20">
+      <div 
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto space-y-6 p-4"
+      >
         {messages.map(m => (
           <div key={m.id} className="flex gap-4 items-start">
             <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${m.role === 'user' ? 'bg-cyan-500' : 'bg-neutral-700'}`}>
@@ -75,17 +79,17 @@ export default function ChatInterface() {
         ))}
       </div>
 
-      <form onSubmit={handleSubmit} className="p-4 border-t border-neutral-800">
-        <div className="flex gap-4">
+      <form onSubmit={handleSubmit} className="p-4 border-t border-neutral-800 bg-neutral-950/80 rounded-b-lg">
+        <div className="flex gap-4 items-center">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask Aether about your data..."
+            placeholder="Message Aether..."
             className="input-field flex-grow"
             disabled={isLoading}
           />
-          <button type="submit" className="btn-primary" disabled={isLoading}>
-            {isLoading ? '...' : 'Send'}
+          <button type="submit" className="btn-primary p-3" disabled={isLoading}>
+            <Send size={20}/>
           </button>
         </div>
       </form>

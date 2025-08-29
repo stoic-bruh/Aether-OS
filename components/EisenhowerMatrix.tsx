@@ -1,7 +1,11 @@
 'use client';
 
-// AFTER: The new import statement
-import { Task } from '@/lib/types';
+type Task = {
+  id: string;
+  title: string;
+  priority: number;
+  due_date: string | null;
+};
 
 const Quadrant = ({ title, tasks, color }: { title: string, tasks: Task[], color: string }) => {
   return (
@@ -13,6 +17,7 @@ const Quadrant = ({ title, tasks, color }: { title: string, tasks: Task[], color
             {task.title}
           </div>
         ))}
+        {tasks.length === 0 && <div className="h-full w-full"></div>}
       </div>
     </div>
   );
@@ -35,6 +40,7 @@ export default function EisenhowerMatrix({ tasks }: { tasks: Task[] }) {
     <div className="card-container">
       <h2 className="text-xl font-semibold mb-4 text-white">Eisenhower Matrix</h2>
       <p className="text-sm text-neutral-400 mb-4">Your tasks, automatically categorized by urgency and importance.</p>
+      {/* This grid now stacks to 1 column on mobile, and is 2 columns on medium screens and up */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Quadrant title="Urgent & Important (Do)" tasks={quadrants.do} color="border-red-500" />
         <Quadrant title="Not Urgent & Important (Schedule)" tasks={quadrants.schedule} color="border-blue-500" />
