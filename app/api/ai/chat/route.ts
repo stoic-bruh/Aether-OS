@@ -1,5 +1,4 @@
-// in app/api/ai/chat/route.ts
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { supabase } from '@/lib/supabaseClient';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || '');
@@ -8,49 +7,52 @@ export const runtime = 'edge';
 
 export async function POST(req: Request) {
   const { messages } = await req.json();
+  const lastUserMessage = messages[messages.length - 1]?.content || '';
 
-  // --- 1. Gather Context from Your Database ---
-  const [
-    { data: tasks },
-    { data: notes },
-    { data: studyLogs }
-  ] = await Promise.all([
-    supabase.from('tasks').select('title, subject, priority, completed').limit(10),
-    supabase.from('quick_notes').select('content').limit(10),
-    supabase.from('study_logs').select('subject, hours').limit(10)
-  ]);
-
-  // --- 2. Construct the Context-Rich Prompt ---
-  // We combine the AI's persona and all your data into one block.
-  const contextBlock = `
-    System Preamble: You are Aether, a futuristic AI assistant integrated into a personal productivity OS. Your tone is cool, helpful, and slightly sci-fi.
-    Use the following data context from the user's AetherOS to provide an intelligent, personalized, and context-aware response.
-    ---
-    CONTEXT:
-    {
-      "recent_tasks": ${JSON.stringify(tasks)},
-      "recent_notes": ${JSON.stringify(notes)},
-      "recent_study_logs": ${JSON.stringify(studyLogs)}
-    }
-    ---
-  `;
-
-  // --- 3. Combine Context with Conversation History ---
-  // We add the context block as the first "user" message to ensure the AI always sees it.
-  const contents = [
-    ...messages.map((msg: any) => ({
-      role: msg.role === 'assistant' ? 'model' : 'user', // Gemini uses 'model' for the assistant role
-      parts: [{ text: msg.content }],
-    }))
-  ];
-  // Inject the context at the beginning of the conversation
-  contents[0].parts[0].text = contextBlock + "\n\nUser Question: " + contents[0].parts[0].text;
-
-  // --- 4. Call Gemini and Stream the Response ---
   try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    // --- Step 1: Identify the Topic ---
+    const { data: resources } = await supabase.from('resources').select('subject');
+    const uniqueSubjects = [...new Set((resources || []).map(r => r.subject).filter(Boolean))];
 
-    const streamingResponse = await model.generateContentStream({ contents });
+    const topicIdentificationPrompt = `Based on the user's question, identify the single most relevant subject from the following list. If no subject is relevant, respond with "None". List of subjects: [${uniqueSubjects.join(', ')}]. Question: "${lastUserMessage}"`;
+    
+    const topicModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+    const topicResult = await topicModel.generateContent(topicIdentificationPrompt);
+    let relevantSubject = topicResult.response.text().trim();
+
+    let contextText = '';
+    // --- Step 2: Retrieve Context for the Identified Topic ---
+    if (relevantSubject && relevantSubject.toLowerCase() !== 'none') {
+      const { data: relevantResources } = await supabase
+        .from('resources')
+        .select('title, content')
+        .eq('subject', relevantSubject)
+        .limit(5); // Get the 5 most recent resources for that subject
+
+      if (relevantResources && relevantResources.length > 0) {
+        contextText = `
+          ---
+          Here is the user's curated knowledge on the subject "${relevantSubject}". Use this information to answer their question.
+          RESOURCES:
+          ${JSON.stringify(relevantResources)}
+          ---
+        `;
+      }
+    }
+
+    // --- Step 3: Answer the Question with the Retrieved Context ---
+    const finalPrompt = `
+      System Preamble: You are Aether, a futuristic AI assistant.
+      ${contextText}
+    `;
+
+    const answerModel = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-flash-latest",
+      systemInstruction: finalPrompt,
+    });
+    
+    // We send only the last message for the final generation, as the context is in the system prompt
+    const streamingResponse = await answerModel.generateContentStream(lastUserMessage);
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -65,7 +67,8 @@ export async function POST(req: Request) {
     return new Response(stream, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
 
   } catch (error) {
-    console.error("Error generating content stream:", error);
+    console.error("Error in AI chat route:", error);
     return new Response("Error from AI service.", { status: 500 });
   }
 }
+

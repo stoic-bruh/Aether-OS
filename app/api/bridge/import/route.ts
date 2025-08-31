@@ -4,18 +4,12 @@ import { NextResponse } from 'next/server';
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_GEMINI_API_KEY || '');
 
-// Helper function to extract JSON from the AI's markdown response
 function cleanJsonString(rawString: string): string {
-  // Find the start of the JSON array
   const jsonStart = rawString.indexOf('[');
-  // Find the end of the JSON array
   const jsonEnd = rawString.lastIndexOf(']');
-
   if (jsonStart === -1 || jsonEnd === -1) {
     throw new Error("Could not find a valid JSON array in the AI's response.");
   }
-
-  // Extract just the JSON part
   return rawString.substring(jsonStart, jsonEnd + 1);
 }
 
@@ -28,32 +22,37 @@ export async function POST(request: Request) {
   }
 
   try {
-    // 1. Save the imported text as a new study log entry
+    // Action 1: Save the imported text as a new study log entry
     const { data: logData, error: logError } = await supabase
       .from('study_logs')
-      .insert({
-        subject: subject,
-        hours: 0, // Set hours to 0 for imported content
-        details: `Imported from ${source}:\n\n${text}`,
-        user_id: placeholderUserId
-      })
+      .insert({ subject, hours: 0, details: `Imported from ${source}:\n\n${text}`, user_id: placeholderUserId })
       .select()
       .single();
-
     if (logError) throw logError;
     
-    // 2. Prompt Gemini to generate flashcards in JSON format
-    const prompt = `Based on the following text about "${subject}", generate 5-10 high-quality flashcards. The flashcards should be in a valid JSON array format. Each object in the array must have two keys: "question" and "answer". Do not include any text outside of the JSON array.
-    
-    TEXT: """
-    ${text}
-    """`;
+    // --- NEW ACTION ---
+    // Action 2: Create a corresponding entry in the Resource Hub
+    const resourceTitle = `Imported Notes on: ${subject}`;
+    const { error: resourceError } = await supabase
+      .from('resources')
+      .insert({
+        title: resourceTitle,
+        url: '', // No URL for imported text
+        content: text, // Store the full text
+        type: 'Imported Text',
+        subject: subject,
+        user_id: placeholderUserId
+      });
+    if (resourceError) throw resourceError;
+    // --- END OF NEW ACTION ---
+
+    // Action 3: Prompt Gemini to generate flashcards
+    const prompt = `Based on the following text about "${subject}", generate 5-10 high-quality flashcards in a valid JSON array format. Each object must have "question" and "answer" keys. Do not include any text outside of the JSON array. TEXT: """${text}"""`;
     
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
     const result = await model.generateContent(prompt);
     const rawResponseText = result.response.text();
     
-    // 3. Clean the AI's response and parse the JSON
     const cleanResponseText = cleanJsonString(rawResponseText);
     const flashcards = JSON.parse(cleanResponseText);
     
@@ -66,17 +65,12 @@ export async function POST(request: Request) {
     }));
     
     const { error: flashcardError } = await supabase.from('flashcards').insert(flashcardData);
-
     if (flashcardError) throw flashcardError;
 
-    return NextResponse.json({ message: "Import successful, flashcards generated!" });
+    return NextResponse.json({ message: "Import successful, resource saved, and flashcards generated!" });
 
   } catch (error) {
     console.error("Error in import bridge:", error);
-    // Provide a more specific error message if JSON parsing failed
-    if (error instanceof SyntaxError) {
-        return NextResponse.json({ error: "Failed to parse the AI's response. The format was invalid." }, { status: 500 });
-    }
-    return NextResponse.json({ error: "Failed to process import and generate flashcards." }, { status: 500 });
+    return NextResponse.json({ error: "Failed to process import." }, { status: 500 });
   }
 }

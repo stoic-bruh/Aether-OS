@@ -1,10 +1,10 @@
-// in app/components/ResourceList.tsx
-import { Link2 } from 'lucide-react';
+import { Link2, FileText } from 'lucide-react';
 
 type Resource = {
   id: string;
   title: string;
   url: string;
+  content: string | null; // The new content field
   type: string;
   subject: string | null;
 };
@@ -26,21 +26,46 @@ export default function ResourceList({ resources }: { resources: Resource[] }) {
         <div key={subject} className="card-container">
           <h2 className="text-xl font-semibold text-white mb-4">{subject}</h2>
           <div className="space-y-3">
-            {items.map(item => (
-              <a
-                key={item.id}
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-4 p-4 bg-neutral-900/70 border border-neutral-800 rounded-lg hover:bg-neutral-800 transition-colors"
-              >
-                <Link2 className="text-cyan-400 flex-shrink-0" />
-                <div className="flex-grow">
-                  <p className="font-medium text-neutral-200">{item.title}</p>
-                  <p className="text-xs text-neutral-500">{item.type}</p>
-                </div>
-              </a>
-            ))}
+            {items.map(item => {
+              // --- NEW LOGIC: Conditionally render a link or a text block ---
+              if (item.url) {
+                // If it has a URL, it's a link
+                return (
+                  <a
+                    key={item.id}
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 p-4 bg-neutral-900/70 border border-neutral-800 rounded-lg hover:bg-neutral-800 transition-colors"
+                  >
+                    <Link2 className="text-cyan-400 flex-shrink-0" />
+                    <div className="flex-grow">
+                      <p className="font-medium text-neutral-200">{item.title}</p>
+                      <p className="text-xs text-neutral-500">{item.type}</p>
+                    </div>
+                  </a>
+                );
+              } else {
+                // If it has no URL, it's imported text
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-4 p-4 bg-neutral-900/70 border border-neutral-800 rounded-lg"
+                  >
+                    <FileText className="text-purple-400 flex-shrink-0" />
+                    <div className="flex-grow">
+                      <p className="font-medium text-neutral-200">{item.title}</p>
+                      <p className="text-xs text-neutral-500">{item.type}</p>
+                      {/* Show a preview of the content */}
+                      <p className="text-sm text-neutral-400 mt-1 italic truncate">
+                        "{item.content?.substring(0, 100)}..."
+                      </p>
+                    </div>
+                  </div>
+                );
+              }
+              // --- END OF NEW LOGIC ---
+            })}
           </div>
         </div>
       ))}
