@@ -1,44 +1,31 @@
-import MissionPlanner from '@/components/MissionPlanner';
-// AFTER: The new import statement
-import { Task } from '@/lib/types';
+export const revalidate = 0;
+import { supabase } from '@/lib/supabaseClient';
+import DayPlanner from '@/components/DayPlanner';
+import { Task, PlannedEvent } from '@/lib/types';
+import { startOfTomorrow } from 'date-fns';
 
-// Update your sample data to include values for the new properties
-const sampleTasks: Task[] = [
-  { 
-    id: '1', // id must be a string
-    title: 'Finalize quarterly report', 
-    subject: 'Reports',
-    priority: 1, // priority must be a number (e.g., 1=High)
-    due_date: '2025-09-05',
-    completed: false,
-    created_at: '2025-08-28T10:00:00Z'
-  },
-  { 
-    id: '2', // id must be a string
-    title: 'Deploy Sentinel AI v1.1 update', 
-    subject: 'Deployments',
-    priority: 1, // priority must be a number
-    due_date: '2025-09-10',
-    completed: false,
-    created_at: '2025-08-27T14:30:00Z'
-  },
-  { 
-    id: '3', // id must be a string
-    title: 'Review documentation for Practical 2', 
-    subject: 'Documentation',
-    priority: 2, // priority must be a number
-    due_date: '2025-08-29',
-    completed: true,
-    created_at: '2025-08-26T11:00:00Z'
-  },
-];
+export default async function PlannerPage() {
+  const tomorrow = startOfTomorrow();
+  const tomorrowStart = tomorrow.toISOString();
+  const tomorrowEnd = new Date(tomorrow.getTime() + 24 * 60 * 60 * 1000 - 1).toISOString();
 
-export default function PlannerPage() {
+  const { data: events } = await supabase
+    .from('planned_events')
+    .select('*')
+    .gte('start_time', tomorrowStart)
+    .lte('end_time', tomorrowEnd)
+    .order('start_time', { ascending: true });
+    
+  const { data: tasks } = await supabase.from('tasks').select('*').eq('completed', false);
+
   return (
     <div className="space-y-8">
-      <h1 className="text-3xl font-bold text-white">Mission Planner</h1>
-      <p className="text-neutral-400">A tactical overview of your upcoming week.</p>
-      <MissionPlanner tasks={sampleTasks} />
+      <div>
+        <h1 className="text-3xl font-bold text-white">Tomorrow's Mission Plan</h1>
+        <p className="text-neutral-400">Time-block your day for maximum productivity.</p>
+      </div>
+      {/* This page now uses your new interactive DayPlanner component */}
+      <DayPlanner initialEvents={events || []} incompleteTasks={tasks || []} selectedDate={tomorrow} />
     </div>
   );
 }

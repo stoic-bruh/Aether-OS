@@ -1,3 +1,4 @@
+// in app/components/Sidebar.tsx
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -7,11 +8,10 @@ import { cn } from '@/lib/utils';
 import { useMobileMenu } from '@/app/context/MobileMenuContext';
 import { 
   LayoutDashboard, CheckSquare, BrainCircuit, Bot, CalendarClock, Star, 
-  BookOpen, GitMerge, Library, UploadCloud, Swords, ChevronsLeft, ChevronsRight, Wrench, X
+  BookOpen, GitMerge, Library, UploadCloud, Swords, ChevronsLeft, ChevronsRight, Wrench, X, StickyNote
 } from 'lucide-react';
 import GlobalTimerWidget from './GlobalTimerWidget';
 
-// --- Navigation Structure ---
 const navGroups = [
   {
     title: 'Core',
@@ -19,7 +19,7 @@ const navGroups = [
       { href: '/', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/tasks', label: 'Tasks', icon: CheckSquare },
       { href: '/planner', label: 'Planner', icon: CalendarClock },
-      { href: '/utilities', label: 'Utilities', icon: Wrench },
+      { href: '/notes', label: 'Notes', icon: StickyNote }, // New Notes Page
     ]
   },
   {
@@ -38,29 +38,28 @@ const navGroups = [
       { href: '/gamification', label: 'Gamification', icon: Star },
       { href: '/journal', label: 'Journal', icon: BookOpen },
       { href: '/import', label: 'Import', icon: UploadCloud },
+      { href: '/utilities', label: 'Utilities', icon: Wrench },
     ]
   }
 ];
 
-// --- Reusable Navigation Content ---
-const NavContent = ({ onLinkClick, isExpanded }: { onLinkClick?: () => void, isExpanded: boolean }) => {
+// ... (The rest of the Sidebar component code is unchanged and can be copied from a previous correct version)
+// For completeness, here is the full rest of the component:
+const NavContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
   const pathname = usePathname();
   return (
     <nav className="flex-grow p-4 space-y-6">
       {navGroups.map((group) => (
         <div key={group.title}>
           <AnimatePresence>
-            {isExpanded && (
-              <motion.h2 
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
-                className="text-xs font-bold uppercase text-neutral-500 mb-2 px-2 whitespace-nowrap"
-              >
-                {group.title}
-              </motion.h2>
-            )}
+            <motion.h2 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="text-xs font-bold uppercase text-neutral-500 mb-2 px-2 whitespace-nowrap"
+            >
+              {group.title}
+            </motion.h2>
           </AnimatePresence>
           <ul className="space-y-1">
             {group.items.map((item) => {
@@ -78,19 +77,9 @@ const NavContent = ({ onLinkClick, isExpanded }: { onLinkClick?: () => void, isE
                     )}
                   >
                     <Icon className="h-6 w-6 flex-shrink-0" />
-                    <AnimatePresence>
-                      {isExpanded && (
-                        <motion.span 
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: -10 }}
-                          transition={{ duration: 0.2, delay: 0.1 }}
-                          className="overflow-hidden whitespace-nowrap"
-                        >
-                          {item.label}
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
+                    <span className="overflow-hidden whitespace-nowrap">
+                      {item.label}
+                    </span>
                   </Link>
                 </li>
               );
@@ -102,7 +91,6 @@ const NavContent = ({ onLinkClick, isExpanded }: { onLinkClick?: () => void, isE
   );
 };
 
-// --- Main Sidebar Component ---
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
@@ -140,7 +128,7 @@ export default function Sidebar() {
         </div>
 
         <div className="flex-grow overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-neutral-900">
-          <NavContent isExpanded={isExpanded} />
+          <NavContent />
         </div>
         
         <div className="flex-shrink-0">
@@ -163,7 +151,7 @@ export default function Sidebar() {
               <button onClick={closeMenu} className="p-2"><X /></button>
             </div>
             <div className="flex-grow overflow-y-auto">
-              <NavContent onLinkClick={closeMenu} isExpanded={true} />
+              <NavContent onLinkClick={closeMenu} />
             </div>
             <div className="flex-shrink-0">
               <GlobalTimerWidget />
@@ -174,4 +162,3 @@ export default function Sidebar() {
     </>
   );
 }
-

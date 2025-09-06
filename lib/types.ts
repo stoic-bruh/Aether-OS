@@ -1,4 +1,4 @@
-// This file is the single source of truth for all data shapes in AetherOS.
+// A central place for all our data shapes
 
 export type Task = {
   id: string;
@@ -8,14 +8,14 @@ export type Task = {
   due_date: string | null;
   completed: boolean;
   created_at: string;
-  score?: number; // Optional score for sorting
 };
 
 export type StudyLog = {
   id: string;
   subject: string | null;
   hours: number;
-  details?: string | null;
+  details: string | null;
+  log_date: string;
   created_at: string;
 };
 
@@ -26,7 +26,6 @@ export type JournalEntry = {
   created_at: string;
 };
 
-// This type is specifically for the dashboard's activity feed
 export type ActivityItem = {
   id: string;
   type: 'task_completed' | 'log_created';
@@ -34,3 +33,13 @@ export type ActivityItem = {
   timestamp: string;
 };
 
+// This is the new type we are adding
+export type PlannedEvent = {
+  id: string;
+  user_id: string;
+  title: string;
+  start_time: string; // ISO String
+  end_time: string;   // ISO String
+  type: string;
+  created_at: string;
+};
