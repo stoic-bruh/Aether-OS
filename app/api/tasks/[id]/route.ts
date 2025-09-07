@@ -1,13 +1,13 @@
 import { supabase } from "@/lib/supabaseClient";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 // GET: Fetch one task
 export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const { data, error } = await supabase
       .from("tasks")
       .select("*")
@@ -27,11 +27,11 @@ export async function GET(
 
 // PATCH: Update partially
 export async function PATCH(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const body = await request.json();
 
     if (body.completed === true) {
@@ -62,11 +62,11 @@ export async function PATCH(
 
 // PUT: Replace entire task
 export async function PUT(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const body = await request.json();
 
     const { error } = await supabase.from("tasks").update(body).eq("id", id);
@@ -84,11 +84,11 @@ export async function PUT(
 
 // DELETE: Delete task
 export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const id = params.id;
+    const { id } = await params;
     const { error } = await supabase.from("tasks").delete().eq("id", id);
     if (error) throw error;
 
