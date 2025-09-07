@@ -1,19 +1,13 @@
 import { supabase } from "@/lib/supabaseClient";
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-// Explicitly type the context param as `any` or create a proper interface
-interface RouteContext {
-  params: {
-    id: string;
-  };
-}
-
-/**
- * GET: Fetches one single task by its ID.
- */
-export async function GET(request: NextRequest, context: RouteContext) {
+// GET: Fetch one task
+export async function GET(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = context.params.id;
+    const id = params.id;
     const { data, error } = await supabase
       .from("tasks")
       .select("*")
@@ -21,7 +15,6 @@ export async function GET(request: NextRequest, context: RouteContext) {
       .single();
 
     if (error) throw error;
-
     return NextResponse.json(data);
   } catch (error: any) {
     console.error("Error fetching task:", error.message);
@@ -32,13 +25,13 @@ export async function GET(request: NextRequest, context: RouteContext) {
   }
 }
 
-/**
- * PATCH: Partially updates a task (e.g., marks as complete, changes title).
- * Also awards 25 XP when a task is marked as complete.
- */
-export async function PATCH(request: NextRequest, context: RouteContext) {
+// PATCH: Update partially
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = context.params.id;
+    const id = params.id;
     const body = await request.json();
 
     if (body.completed === true) {
@@ -57,7 +50,6 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       .single();
 
     if (error) throw error;
-
     return NextResponse.json(data);
   } catch (error: any) {
     console.error("Error updating task (PATCH):", error.message);
@@ -68,12 +60,13 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   }
 }
 
-/**
- * PUT: Replaces an entire task's data. Useful for full edits.
- */
-export async function PUT(request: NextRequest, context: RouteContext) {
+// PUT: Replace entire task
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = context.params.id;
+    const id = params.id;
     const body = await request.json();
 
     const { error } = await supabase.from("tasks").update(body).eq("id", id);
@@ -89,12 +82,13 @@ export async function PUT(request: NextRequest, context: RouteContext) {
   }
 }
 
-/**
- * DELETE: Deletes one specific task.
- */
-export async function DELETE(request: NextRequest, context: RouteContext) {
+// DELETE: Delete task
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = context.params.id;
+    const id = params.id;
     const { error } = await supabase.from("tasks").delete().eq("id", id);
     if (error) throw error;
 
