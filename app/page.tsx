@@ -24,7 +24,13 @@ export default async function Home() {
   const completedTasks = (allTasks as Task[] | null)?.filter(t => t.completed) || [];
   const tasksCompletedThisWeek = completedTasks.filter(t => new Date(t.created_at) >= new Date(sevenDaysAgo)).length;
   const hoursStudiedThisWeek = (studyLogs || []).reduce((sum, log) => sum + log.hours, 0);
-  const avgMood = (journalEntries || []).length > 0 ? (journalEntries as JournalEntry[]).reduce((sum, entry) => sum + entry.mood, 0) / journalEntries!.length : 3;
+  
+  // Fix: Add null check for mood values
+  const validMoodEntries = (journalEntries as JournalEntry[] | null)?.filter(entry => entry.mood !== null) || [];
+  const avgMood = validMoodEntries.length > 0 
+    ? validMoodEntries.reduce((sum, entry) => sum + entry.mood!, 0) / validMoodEntries.length 
+    : 3;
+  
   const userXP = profile?.xp || 0;
 
   // Data for the Analytics Carousel
@@ -78,4 +84,3 @@ export default async function Home() {
     </div>
   );
 }
-
