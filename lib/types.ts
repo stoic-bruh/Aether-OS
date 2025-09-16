@@ -3,12 +3,12 @@
 export type Task = {
   id: string;
   title: string;
-  description: string | null;
   subject: string | null;
   priority: number;
   due_date: string | null;
   completed: boolean;
   created_at: string;
+  description?: string;
 };
 
 export type StudyLog = {
@@ -20,22 +20,18 @@ export type StudyLog = {
   created_at: string;
 };
 
-// --- This is the section we are fixing ---
 export type JournalEntry = {
   id: string;
-  content: string | null; // Can be null for morning entries
-  mood: number | null;      // Can be null for morning entries
+  content: string | null;
+  mood: number | null;
   created_at: string;
-  
-  // Add all the new optional fields
-  type: 'morning' | 'evening' | 'reflection';
+  type: 'morning' | 'evening';
   gratitude?: string | null;
   plan_for_day?: string | null;
   mental_win?: string | null;
   physical_win?: string | null;
   lesson_learned?: string | null;
 };
-// --- End of fix ---
 
 export type ActivityItem = {
   id: string;
@@ -48,11 +44,11 @@ export type PlannedEvent = {
   id: string;
   user_id: string;
   title: string;
-  description: string | null;
-  start_time: string; // ISO String
-  end_time: string;   // ISO String
+  start_time: string;
+  end_time: string;
   type: string;
   created_at: string;
+  description?: string;
 };
 
 export type Resource = {
@@ -62,6 +58,35 @@ export type Resource = {
   content: string | null;
   type: string;
   subject: string | null;
-  source?: string | null;
+};
+
+// --- This section will be updated ---
+export type QuizQuestion = 
+  | {
+      type: 'mcq';
+      question: string;
+      options: string[];
+      correctAnswerIndex: number;
+      correctAnswer: string;
+      explanation: string;
+    }
+  | {
+      type: 'true_false';
+      question: string;
+      correctAnswer: boolean;
+      explanation: string;
+    }
+  | {
+      type: 'one_word' | 'short_answer';
+      question: string;
+      correctAnswer: string;
+      explanation: string;
+    };
+
+export type Quiz = {
+  id: string;
+  resource_id: string; // Keep track of which resource this quiz is for
+  title: string;
+  questions: QuizQuestion[];
 };
 
