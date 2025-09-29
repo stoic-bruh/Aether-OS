@@ -9,6 +9,7 @@ export type Task = {
   completed: boolean;
   created_at: string;
   description?: string;
+  skill_id?: string | null;
 };
 
 export type StudyLog = {
@@ -60,33 +61,37 @@ export type Resource = {
   subject: string | null;
 };
 
-// --- This section will be updated ---
-export type QuizQuestion = 
-  | {
-      type: 'mcq';
-      question: string;
-      options: string[];
-      correctAnswerIndex: number;
-      correctAnswer: string;
-      explanation: string;
-    }
-  | {
-      type: 'true_false';
-      question: string;
-      correctAnswer: boolean;
-      explanation: string;
-    }
-  | {
-      type: 'one_word' | 'short_answer';
-      question: string;
-      correctAnswer: string;
-      explanation: string;
-    };
+export type QuizQuestion = {
+  type: 'mcq' | 'one_word' | 'true_false' | 'short_answer';
+  question: string;
+  options?: string[];
+  correctAnswerIndex?: number;
+  correctAnswer: string | boolean;
+  explanation: string;
+};
 
 export type Quiz = {
   id: string;
-  resource_id: string; // Keep track of which resource this quiz is for
+  resource_id: string;
   title: string;
   questions: QuizQuestion[];
 };
 
+export type Goal = {
+  id: string;
+  user_id: string;
+  title: string;
+  description?: string; // Added optional description for better goal context
+  target_date: string | null;
+  deadline: string | null; // Added deadline property
+  is_primary: boolean;
+  created_at: string;
+};
+
+export type Skill = {
+  id: string;
+  user_id: string;
+  goal_id: string;
+  name: string;
+  created_at: string;
+};

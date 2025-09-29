@@ -7,11 +7,10 @@ import { cn } from '@/lib/utils';
 import { useMobileMenu } from '@/app/context/MobileMenuContext';
 import { 
   LayoutDashboard, CheckSquare, BrainCircuit, Bot, CalendarClock, Star, 
-  BookOpen, GitMerge, Library, UploadCloud, Swords, ChevronsLeft, ChevronsRight, Wrench, X, StickyNote
+  BookOpen, GitMerge, Library, UploadCloud, Swords, ChevronsLeft, ChevronsRight, Wrench, X, StickyNote, Target
 } from 'lucide-react';
 import GlobalTimerWidget from './GlobalTimerWidget';
 
-// --- Navigation Structure ---
 const navGroups = [
   {
     title: 'Core',
@@ -33,6 +32,7 @@ const navGroups = [
   {
     title: 'Intelligence',
     items: [
+      { href: '/roadmap', label: 'Roadmap', icon: Target },
       { href: '/assistant', label: 'AI Assistant', icon: Bot },
       { href: '/knowledge-graph', label: 'Knowledge Graph', icon: GitMerge },
       { href: '/import', label: 'Import', icon: UploadCloud },
@@ -48,18 +48,8 @@ const navGroups = [
   }
 ];
 
-// --- Types ---
-interface NavContentProps {
-  onLinkClick?: () => void;
-  isExpanded: boolean;
-}
-
-interface GlobalTimerWidgetProps {
-  isExpanded: boolean;
-}
-
-// --- Reusable Navigation Content for Mobile & Desktop ---
-const NavContent = ({ onLinkClick, isExpanded }: NavContentProps) => {
+// Reusable Navigation Content for Mobile & Desktop
+const NavContent = ({ onLinkClick, isExpanded }: { onLinkClick?: () => void; isExpanded: boolean; }) => {
   const pathname = usePathname();
   return (
     <nav className="flex-grow p-2 space-y-4">
@@ -68,9 +58,7 @@ const NavContent = ({ onLinkClick, isExpanded }: NavContentProps) => {
           <AnimatePresence>
             {isExpanded && (
               <motion.h2 
-                initial={{ opacity: 0 }} 
-                animate={{ opacity: 1 }} 
-                exit={{ opacity: 0 }}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 transition={{ duration: 0.1 }}
                 className="text-xs font-bold uppercase text-neutral-500 mb-2 px-2 whitespace-nowrap"
               >
@@ -97,9 +85,7 @@ const NavContent = ({ onLinkClick, isExpanded }: NavContentProps) => {
                     <AnimatePresence>
                       {isExpanded && (
                         <motion.span 
-                          initial={{ opacity: 0, width: 0 }} 
-                          animate={{ opacity: 1, width: 'auto' }} 
-                          exit={{ opacity: 0, width: 0 }}
+                          initial={{ opacity: 0, width: 0 }} animate={{ opacity: 1, width: 'auto' }} exit={{ opacity: 0, width: 0 }}
                           transition={{ duration: 0.2, delay: 0.1 }}
                           className="overflow-hidden whitespace-nowrap text-sm"
                         >
@@ -118,7 +104,7 @@ const NavContent = ({ onLinkClick, isExpanded }: NavContentProps) => {
   );
 };
 
-// --- Main Sidebar Component ---
+// Main Sidebar Component
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [isHovered, setIsHovered] = useState(false);
@@ -140,19 +126,14 @@ export default function Sidebar() {
           <AnimatePresence>
             {isExpanded && (
               <motion.h1 
-                initial={{ opacity: 0, x: -10 }} 
-                animate={{ opacity: 1, x: 0 }} 
-                exit={{ opacity: 0, x: -10 }}
+                initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }}
                 className="text-xl font-bold text-white whitespace-nowrap"
               >
                 AetherOS
               </motion.h1>
             )}
           </AnimatePresence>
-          <button 
-            onClick={() => setIsCollapsed(!isCollapsed)} 
-            className="p-2 rounded-lg hover:bg-neutral-800"
-          >
+          <button onClick={() => setIsCollapsed(!isCollapsed)} className="p-2 rounded-lg hover:bg-neutral-800">
             {isCollapsed ? <ChevronsRight size={18} /> : <ChevronsLeft size={18} />}
           </button>
         </div>
@@ -162,7 +143,7 @@ export default function Sidebar() {
         </div>
         
         <div className="flex-shrink-0 border-t border-neutral-800/50">
-          <GlobalTimerWidget isExpanded={isExpanded} />
+          <GlobalTimerWidget isExpanded={isExpanded}/>
         </div>
       </motion.aside>
 
@@ -178,9 +159,7 @@ export default function Sidebar() {
           >
             <div className="p-4 flex justify-between items-center border-b border-neutral-800 flex-shrink-0">
               <h1 className="text-2xl font-bold text-white">AetherOS</h1>
-              <button onClick={closeMenu} className="p-2">
-                <X />
-              </button>
+              <button onClick={closeMenu} className="p-2"><X /></button>
             </div>
             <div className="flex-grow overflow-y-auto">
               <NavContent onLinkClick={closeMenu} isExpanded={true} />
@@ -194,3 +173,4 @@ export default function Sidebar() {
     </>
   );
 }
+
